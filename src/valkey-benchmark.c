@@ -2571,9 +2571,35 @@ int main(int argc, char **argv) {
             sdsfree(key_placeholder);
         }
 
-        if (test_is_selected("xadd")) {
-            len = valkeyFormatCommand(&cmd, "XADD mystream%s * myfield %s", tag, data);
+        if (test_is_selected("xadd") || test_is_selected("xrange") ||
+            test_is_selected("xrange_100") || test_is_selected("xrange_300") ||
+            test_is_selected("xrange_500") || test_is_selected("xrange_600")) {
+            len = valkeyFormatCommand(&cmd, "XADD mystream%s * myfield %s int __rand_int__", tag, data);
             benchmark("XADD", cmd, len);
+            free(cmd);
+        }
+
+        if (test_is_selected("xrange") || test_is_selected("xrange_100")) {
+            len = valkeyFormatCommand(&cmd, "XRANGE mystream%s - + COUNT 100", tag);
+            benchmark("XRANGE_100 (first 100 elements)", cmd, len);
+            free(cmd);
+        }
+
+        if (test_is_selected("xrange") || test_is_selected("xrange_300")) {
+            len = valkeyFormatCommand(&cmd, "XRANGE mystream%s - + COUNT 300", tag);
+            benchmark("XRANGE_300 (first 300 elements)", cmd, len);
+            free(cmd);
+        }
+
+        if (test_is_selected("xrange") || test_is_selected("xrange_500")) {
+            len = valkeyFormatCommand(&cmd, "XRANGE mystream%s - + COUNT 500", tag);
+            benchmark("XRANGE_500 (first 500 elements)", cmd, len);
+            free(cmd);
+        }
+
+        if (test_is_selected("xrange") || test_is_selected("xrange_600")) {
+            len = valkeyFormatCommand(&cmd, "XRANGE mystream%s - + COUNT 600", tag);
+            benchmark("XRANGE_600 (first 600 elements)", cmd, len);
             free(cmd);
         }
 

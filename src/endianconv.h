@@ -43,6 +43,17 @@ uint16_t intrev16(uint16_t v);
 uint32_t intrev32(uint32_t v);
 uint64_t intrev64(uint64_t v);
 
+/* For GCC, Clang — compile to a single instruction */
+#if defined(__GNUC__) || defined(__clang__)
+#define VALKEY_BSWAP16(v) __builtin_bswap16(v)
+#define VALKEY_BSWAP32(v) __builtin_bswap32(v)
+#define VALKEY_BSWAP64(v) __builtin_bswap64(v)
+#else
+#define VALKEY_BSWAP16(v) intrev16(v)
+#define VALKEY_BSWAP32(v) intrev32(v)
+#define VALKEY_BSWAP64(v) intrev64(v)
+#endif
+
 /* variants of the function doing the actual conversion only if the target
  * host is big endian */
 #if (BYTE_ORDER == LITTLE_ENDIAN)
@@ -56,9 +67,9 @@ uint64_t intrev64(uint64_t v);
 #define memrev16ifbe(p) memrev16(p)
 #define memrev32ifbe(p) memrev32(p)
 #define memrev64ifbe(p) memrev64(p)
-#define intrev16ifbe(v) intrev16(v)
-#define intrev32ifbe(v) intrev32(v)
-#define intrev64ifbe(v) intrev64(v)
+#define intrev16ifbe(v) VALKEY_BSWAP16(v)
+#define intrev32ifbe(v) VALKEY_BSWAP32(v)
+#define intrev64ifbe(v) VALKEY_BSWAP64(v)
 #endif
 
 /* The functions htonu64() and ntohu64() convert the specified value to
@@ -67,7 +78,7 @@ uint64_t intrev64(uint64_t v);
 #define htonu64(v) (v)
 #define ntohu64(v) (v)
 #else
-#define htonu64(v) intrev64(v)
-#define ntohu64(v) intrev64(v)
+#define htonu64(v) VALKEY_BSWAP64(v)
+#define ntohu64(v) VALKEY_BSWAP64(v)
 #endif
 #endif
